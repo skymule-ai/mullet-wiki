@@ -3,42 +3,73 @@
     {
       "id": "operator",
       "label": "Operator",
-      "nodes": ["paddock"]
+      "nodes": [
+        "paddock"
+      ]
     },
     {
       "id": "contract",
       "label": "Contract",
-      "nodes": ["interfaces"]
+      "nodes": [
+        "interfaces"
+      ]
     },
     {
       "id": "onboard",
       "label": "Onboard",
-      "nodes": ["core", "ergodic", "px4"]
+      "nodes": [
+        "px4",
+        "core",
+        "ergodic"
+      ]
     },
     {
       "id": "images",
       "label": "Images & sim",
-      "nodes": ["ros_base", "sitl_sim", "sitl_builder"]
+      "nodes": [
+        "sitl_sim",
+        "ros_base"
+      ]
     }
   ],
   "edges": [
-    ["paddock", "interfaces"],
-    ["interfaces", "core"],
-    ["ergodic", "core"],
-    ["paddock", "ergodic"],
-    ["core", "px4"],
-    ["ros_base", "core"],
-    ["sitl_builder", "sitl_sim"],
-    ["sitl_sim", "core"]
+    [
+      "paddock",
+      "interfaces"
+    ],
+    [
+      "interfaces",
+      "core"
+    ],
+    [
+      "ergodic",
+      "core"
+    ],
+    [
+      "paddock",
+      "ergodic"
+    ],
+    [
+      "core",
+      "px4"
+    ],
+    [
+      "ros_base",
+      "core"
+    ],
+    [
+      "sitl_sim",
+      "core"
+    ]
   ],
   "nodes": {
     "paddock": {
       "title": "mullet-paddock",
       "tag": "UI + gateway",
       "accent": "cyan",
-      "blurb": "Operator control center. React UI and FastAPI gateway. Discovers drones from heartbeats and drives semantic actions. No mock mode.",
-      "wires": "Browser → gateway :8000 → ROS 2 action/service clients → mullet_interfaces → mullet_core. UI at :5173.",
-      "page": "stack/paddock/",
+      "blurb": "Operator control center: React UI + FastAPI gateway. Finds drones from their heartbeats, sends the five semantic actions, and hosts the Mission Builder (ergodic/3, 2D + 3D, previous missions). No mock mode.",
+      "wires": "Browser → gateway :8000 → ROS 2 action/service clients → mullet_interfaces → mullet_core. UI at :5173. Start mission gated on a framework READY.",
+      "page": "on-field/paddock/",
       "commands": [
         {
           "label": "SITL + UI",
@@ -53,19 +84,21 @@
         {
           "label": "Aircraft",
           "lines": [
-            "cp .env.ros2.example .env.ros2   # ROS_DOMAIN_ID = aircraft (e.g. 99)",
+            "cp .env.ros2.example .env.ros2   # ROS_DOMAIN_ID=99 (aircraft)",
             "make ros2-dev",
             "make frontend-dev",
-            "# map toolbar: Download this area"
+            "curl -s localhost:8000/api/drones   # expect uav_0",
+            "# Mission Builder toolbar: Download this area (before leaving Wi-Fi)"
           ]
         }
-      ]
+      ],
+      "col": 2
     },
     "interfaces": {
       "title": "mullet-interfaces",
       "tag": "IDL",
       "accent": "mint",
-      "blurb": "Wire contract only: actions, heartbeat, mission API. No runtime. Change order: IDL → core populates → paddock reads.",
+      "blurb": "Wire contract only: 3 actions, heartbeat v3, MissionCommand (TRAJECTORY / VELOCITY / ACCELERATION, planar + 3D), MissionStatus, LoadMission, ListMissions. Change order: IDL → core populates → paddock reads.",
       "wires": "Consumed by core, paddock (vendored), sitl_sim (submodule), and mission frameworks.",
       "page": "stack/interfaces/",
       "commands": [
@@ -77,15 +110,16 @@
             "ros2 interface show mullet_interfaces/msg/DroneHeartbeat"
           ]
         }
-      ]
+      ],
+      "col": 2
     },
     "core": {
       "title": "mullet-core",
       "tag": "supervisor",
       "accent": "cyan",
-      "blurb": "Soft real-time PX4 offboard supervisor. Owns takeoff, land, RTH, proof-of-life, and MissionCommand validation. PX4 stays hard RT. RC kill is the e-stop.",
-      "wires": "Serves /<ns>/{takeoff,land,return_home} and /<ns>/{start_mission,hold}. Publishes /mullet/heartbeat. Talks PX4 on /fmu in|out.",
-      "page": "stack/core/",
+      "blurb": "Soft real-time PX4 offboard supervisor. Four states: IDLE, TRANSITION, HOLD, MISSION. Owns takeoff, land, RTH and MissionCommand validation. PX4 stays hard RT; RC kill is the e-stop.",
+      "wires": "Serves <ns>/{takeoff,land,return_home} and <ns>/{start_mission,hold}. Publishes /mullet/heartbeat. Streams <ns>/command to PX4 only in MISSION. Aircraft = instance 0: bare names, uav_0.",
+      "page": "on-field/fsm/",
       "commands": [
         {
           "label": "Dev",
@@ -98,46 +132,49 @@
           "label": "Aircraft",
           "lines": [
             "cd docker && cp .env.example .env && docker compose up -d --build",
-            "ros2 action send_goal /uav_1/takeoff mullet_interfaces/action/Takeoff \"{altitude_m: 2.0, yaw_rad: 0.0, use_current_yaw: true}\" --feedback",
-            "ros2 service call /uav_1/start_mission std_srvs/srv/Trigger",
-            "ros2 service call /uav_1/hold std_srvs/srv/Trigger",
-            "ros2 action send_goal /uav_1/return_home mullet_interfaces/action/ReturnHome \"{}\" --feedback",
-            "ros2 action send_goal /uav_1/land mullet_interfaces/action/Land \"{}\" --feedback"
+            "ros2 action send_goal /takeoff mullet_interfaces/action/Takeoff \"{altitude_m: 2.0, yaw_rad: 0.0, use_current_yaw: true}\" --feedback",
+            "ros2 service call /start_mission std_srvs/srv/Trigger",
+            "ros2 service call /hold std_srvs/srv/Trigger",
+            "ros2 action send_goal /return_home mullet_interfaces/action/ReturnHome \"{}\" --feedback",
+            "ros2 action send_goal /land mullet_interfaces/action/Land \"{}\" --feedback"
           ]
         }
-      ]
+      ],
+      "col": 2
     },
     "ergodic": {
       "title": "ergodic_mppi",
       "tag": "framework",
       "accent": "mint",
-      "blurb": "JAX potential-gradient MPPI as a MULLET mission framework. Loads ergodic/3 specs, streams MissionCommand. Never talks to /fmu/in/*.",
-      "wires": "paddock LoadMission → ergodic_mission → MissionCommand → mullet_core → PX4. Status on /mullet/mission_status.",
-      "page": "frameworks/ergodic-mppi/",
+      "blurb": "JAX MPPI ergodic coverage as a MULLET mission framework. Loads ergodic/3 specs (trajectory mode by default), keeps a mission library, streams MissionCommand. Never talks to /fmu/in/*.",
+      "wires": "paddock LoadMission → ergodic_mission → MissionCommand → mullet_core → PX4. Status + preflight on /mullet/mission_status @ 2 Hz.",
+      "page": "on-field/frameworks/",
       "commands": [
         {
           "label": "SITL",
           "lines": [
-            "../mullet_sitl_sim/run.sh --headless --config config/paddock.yaml --domain 42",
+            "../mullet-sim/run.sh --headless --config config/paddock.yaml --domain 42",
             "docker run --rm --network host -e ROS_DOMAIN_ID=42 ergodic-mission:latest python /workspace/tests/sitl/sitl_e2e.py --drone uav_1"
           ]
         },
         {
           "label": "Aircraft",
           "lines": [
-            "rsync -az --delete --exclude-from=.dockerignore ./ orin:ergodic_mppi/",
-            "ssh orin 'cd ergodic_mppi/docker/mission && cp -n .env.example .env && docker compose up -d --build'",
-            "# DRONE_ID and ROS_DOMAIN_ID must match mullet_core"
+            "ssh orin 'git clone --recursive git@github.com:skymule-ai/ergodic_mppi.git'   # once",
+            "ssh orin 'cd ergodic_mppi && git pull --recurse-submodules && cd docker/mission && cp -n .env.example .env && docker compose up -d --build'",
+            "ssh orin 'docker logs -f ergodic-mission'",
+            "# .env: DRONE_ID=uav_0, ROS_DOMAIN_ID = mullet_core's"
           ]
         }
-      ]
+      ],
+      "col": 3
     },
     "px4": {
       "title": "PX4",
       "tag": "1.17.x",
       "accent": "amber",
       "blurb": "Hard real-time flight controller. Attitude, mixing, motors, failsafes. uXRCE-DDS to ROS 2. Emergency stop is the RC kill switch.",
-      "wires": "Pixhawk TELEM2 serial on the aircraft; UDP in SITL. Domain: UXRCE_DDS_DOM_ID = ROS_DOMAIN_ID.",
+      "wires": "Pixhawk TELEM3 serial on the aircraft (TELEM2 on the SIH bench board); UDP in SITL. Domain: UXRCE_DDS_DOM_ID = ROS_DOMAIN_ID.",
       "commands": [
         {
           "label": "SITL image",
@@ -145,10 +182,11 @@
             "docker pull ghcr.io/skymule-ai/px4-sitl:v1.17.0"
           ]
         }
-      ]
+      ],
+      "col": 1
     },
     "ros_base": {
-      "title": "mullet_ros_base",
+      "title": "mullet-base",
       "tag": "Jetson image",
       "accent": "amber",
       "blurb": "ARM64 ROS 2 Jazzy base for Jetson Orin (JetPack 6.2.2). CUDA 13.2 + compat, px4_msgs 1.17, Micro XRCE-DDS Agent v2.4.2. Pin v0.5.0+, never :main on aircraft.",
@@ -169,14 +207,15 @@
             "MULLET_ROS_IMAGE_TAG=v0.5.0 docker compose -f docker-compose.yml -f docker-compose.jetson.yml run --rm ros2-base"
           ]
         }
-      ]
+      ],
+      "col": 3
     },
     "sitl_sim": {
-      "title": "mullet_sitl_sim",
+      "title": "mullet-sim",
       "tag": "fleet",
       "accent": "cyan",
-      "blurb": "Multi-vehicle PX4 SITL + Gazebo + ROS 2. One container, N vehicles, host tmux or headless. Live backend for paddock.",
-      "wires": "Image from sitl_builder. Submodules: mullet-core, mullet-interfaces. Headless paddock.yaml → uav_1 / uav_2 on domain 42.",
+      "blurb": "Multi-vehicle PX4 SITL + Gazebo + ROS 2. One container, N vehicles, host tmux or headless. Paddock's live backend and the frameworks' e2e target.",
+      "wires": "PX4 SITL image built from image/ (ghcr.io/skymule-ai/px4-sitl:v1.17.0, lockstep with px4_msgs release/1.17). Submodules: mullet-core, mullet-interfaces. Headless paddock.yaml → uav_1 / uav_2 on domain 42.",
       "page": "stack/sitl/",
       "commands": [
         {
@@ -188,26 +227,16 @@
             "./stop.sh",
             "tui/build.sh && ./mullet"
           ]
-        }
-      ]
-    },
-    "sitl_builder": {
-      "title": "sitl_builder",
-      "tag": "PX4 image",
-      "accent": "amber",
-      "blurb": "Builds the PX4 SITL Docker image: Ubuntu 24.04, ROS 2 Jazzy, Gazebo Harmonic, PX4 v1.17.0. No app logic.",
-      "wires": "Publishes ghcr.io/skymule-ai/px4-sitl:v1.17.0, consumed by mullet_sitl_sim. Keep lockstep with px4_msgs release/1.17.",
-      "page": "stack/sitl-builder/",
-      "commands": [
+        },
         {
-          "label": "Build / pull",
+          "label": "PX4 image",
           "lines": [
-            "docker compose build",
-            "docker pull ghcr.io/skymule-ai/px4-sitl:v1.17.0",
+            "docker build -t ghcr.io/skymule-ai/px4-sitl:v1.17.0 image/",
             "git tag -a px4-v1.17.0 -m \"Release PX4 v1.17.0\" && git push origin px4-v1.17.0"
           ]
         }
-      ]
+      ],
+      "col": 2
     }
   }
 }

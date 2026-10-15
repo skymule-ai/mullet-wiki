@@ -1,8 +1,8 @@
-# mullet_ros_base
+# mullet-base
 
 ARM64 ROS 2 **Jazzy** base image for NVIDIA **Jetson Orin** (JetPack 6.2.2 / L4T R36.5): CUDA 13.2 + `cuda-compat-orin`, `px4_msgs` `release/1.17`, Micro XRCE-DDS Agent **v2.4.2**.
 
-Repo: [skymule-ai/mullet_ros_base](https://github.com/skymule-ai/mullet_ros_base)
+Repo: [skymule-ai/mullet-base](https://github.com/skymule-ai/mullet-base)
 
 `ghcr.io/skymule-ai/mullet-ros2-base`. Tags `v0.4.0` and older are Humble. `v0.5.0+` is Jazzy. Aircraft images pin an immutable tag, never `:main`.
 

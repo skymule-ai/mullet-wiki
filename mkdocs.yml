@@ -28,14 +28,19 @@ theme:
 
 nav:
   - Home: index.md
+  - On Field:
+      - on-field/index.md
+      - Paddock: on-field/paddock.md
+      - Mission Builder: on-field/mission-builder.md
+      - FSM: on-field/fsm.md
+      - Frameworks: on-field/frameworks.md
   - Stack:
       - stack/index.md
       - mullet-interfaces: stack/interfaces.md
       - mullet-core: stack/core.md
       - mullet-paddock: stack/paddock.md
-      - mullet_sitl_sim: stack/sitl.md
-      - mullet_ros_base: stack/ros-base.md
-      - sitl_builder: stack/sitl-builder.md
+      - mullet-sim: stack/sitl.md
+      - mullet-base: stack/ros-base.md
   - Frameworks:
       - frameworks/index.md
       - Ergodic MPPI: frameworks/ergodic-mppi.md

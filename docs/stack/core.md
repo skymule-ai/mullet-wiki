@@ -27,7 +27,18 @@ Launch is passive: `IDLE` does not arm or request Offboard until `Takeoff` is ac
 
 PX4 1.17 versioned topics get a `_v<N>` suffix. Instance `0` uses bare `/fmu/...`. Instance `N` with prefix `uav` uses `/uav_N/fmu/...`, `target_system = N+1`.
 
-`MISSION` modes: `VELOCITY` / `ACCELERATION` (planar, z latched) and `VELOCITY_3D` / `ACCELERATION_3D`. Stale commands → hold in place, stay in `MISSION`.
+`MISSION` modes (`MissionCommand.mode`):
+
+| Mode | PX4 tracks |
+| --- | --- |
+| `TRAJECTORY` | planned NED position + velocity (and optional accel) feedforward; lead clamped by `max_xy_position_lead_m` |
+| `VELOCITY` | velocity, optional accel feedforward, clamped by `max_vx/vy_ned_mps` |
+| `ACCELERATION` | acceleration, clamped per axis by `max_accel_ned_mps2` |
+| `*_3D` | same on x, y, z (`max_vz_ned_mps`, `max_z_position_lead_m`) |
+
+Planar modes need NaN z and hold the altitude latched on entering `MISSION`. Stale commands (older than `command_timeout_s`, 0.25 s) → hold in place, stay in `MISSION`.
+
+Field checklist: [On Field → FSM](../on-field/fsm.md).
 
 ## Dev
 
@@ -59,4 +70,4 @@ ros2 action send_goal /uav_1/return_home mullet_interfaces/action/ReturnHome "{}
 ros2 action send_goal /uav_1/land mullet_interfaces/action/Land "{}" --feedback
 ```
 
-Bare names if `vehicle_instance: 0`.
+Those are SITL names. The aircraft runs `vehicle_instance: 0`: bare names (`/takeoff`, …) and `drone_id` `uav_0`.

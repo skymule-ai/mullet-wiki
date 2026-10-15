@@ -18,4 +18,4 @@ Wire types live in [mullet-interfaces](../stack/interfaces.md).
 
 | Framework | Schema | Repo |
 | --- | --- | --- |
-| [Ergodic MPPI](ergodic-mppi.md) | `ergodic/3` | `skymule-ai/ergodic_mppi` (the `mullet-deploy` slice) |
+| [Ergodic MPPI](ergodic-mppi.md) | `ergodic/3` | `skymule-ai/ergodic_mppi` |

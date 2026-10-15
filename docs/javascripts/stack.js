@@ -1,7 +1,7 @@
 (() => {
   let data = null;
   let selected = null;
-  let drawing = false;
+  const observer = new ResizeObserver(() => drawEdges());
 
   const accent = (name) =>
     ({ cyan: "#4cc2ff", amber: "#ffb547", mint: "#3ddc97" }[name] || "#4cc2ff");
@@ -47,6 +47,7 @@
         btn.id = `stack-node-${id}`;
         btn.dataset.node = id;
         btn.dataset.accent = node.accent;
+        if (node.col) btn.style.gridColumn = String(node.col);
         btn.setAttribute("aria-pressed", "false");
         btn.innerHTML =
           `<span class="stack-node__tag">${escapeHtml(node.tag)}</span>` +
@@ -68,10 +69,9 @@
       wrap.append(label, row);
       iso.appendChild(wrap);
     });
-    requestAnimationFrame(() => {
-      drawEdges();
-      requestAnimationFrame(drawEdges);
-    });
+    observer.disconnect();
+    observer.observe(document.getElementById("stack-scene"));
+    observer.observe(iso);
   }
 
   function hotIndex(json, id) {
@@ -150,47 +150,87 @@
     drawEdges();
   }
 
+  // Layout box relative to the scene. offset* ignores CSS transforms, so a lifted block never
+  // drags its lines along mid-animation.
+  function box(el, scene) {
+    let x = 0;
+    let y = 0;
+    for (let n = el; n && n !== scene; n = n.offsetParent) {
+      x += n.offsetLeft;
+      y += n.offsetTop;
+    }
+    return { x, y, w: el.offsetWidth, h: el.offsetHeight, cx: x + el.offsetWidth / 2, cy: y + el.offsetHeight / 2 };
+  }
+
+  // Orthogonal route with rounded corners through the gaps between lanes.
+  function route(a, b) {
+    if (Math.abs(a.cy - b.cy) < a.h / 2) {
+      const [l, r] = a.cx < b.cx ? [a, b] : [b, a];
+      return [[l.x + l.w, l.cy], [r.x, r.cy]];
+    }
+    const down = b.cy > a.cy;
+    const sy = down ? a.y + a.h : a.y;
+    const ty = down ? b.y : b.y + b.h;
+    if (Math.abs(a.cx - b.cx) < 1) return [[a.cx, sy], [b.cx, ty]];
+    const gy = sy + (down ? GAP : -GAP);
+    return [[a.cx, sy], [a.cx, gy], [b.cx, gy], [b.cx, ty]];
+  }
+
+  const GAP = 14;
+  const RADIUS = 10;
+
+  function pathOf(pts) {
+    let d = `M ${pts[0][0]} ${pts[0][1]}`;
+    for (let i = 1; i < pts.length - 1; i++) {
+      const [px, py] = pts[i - 1];
+      const [x, y] = pts[i];
+      const [nx, ny] = pts[i + 1];
+      const lin = Math.hypot(x - px, y - py);
+      const lout = Math.hypot(nx - x, ny - y);
+      const k = Math.min(RADIUS, lin / 2, lout / 2);
+      if (!k) continue;
+      d += ` L ${x - ((x - px) / lin) * k} ${y - ((y - py) / lin) * k}`;
+      d += ` Q ${x} ${y} ${x + ((nx - x) / lout) * k} ${y + ((ny - y) / lout) * k}`;
+    }
+    const [lx, ly] = pts[pts.length - 1];
+    return `${d} L ${lx} ${ly}`;
+  }
+
+  function svgEl(name, attrs) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", name);
+    Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+    return el;
+  }
+
   function drawEdges() {
     const svg = document.getElementById("stack-edges");
     const scene = document.getElementById("stack-scene");
-    if (!svg || !scene || !data || drawing) return;
-    drawing = true;
-    const rect = scene.getBoundingClientRect();
-    svg.setAttribute("viewBox", `0 0 ${rect.width} ${rect.height}`);
+    if (!svg || !scene || !data) return;
+    svg.setAttribute("viewBox", `0 0 ${scene.clientWidth} ${scene.clientHeight}`);
     svg.replaceChildren();
-    const live = related(selected);
     data.edges.forEach(([a, b]) => {
       const from = document.getElementById(`stack-node-${a}`);
       const to = document.getElementById(`stack-node-${b}`);
       if (!from || !to) return;
-      const fa = from.getBoundingClientRect();
-      const tb = to.getBoundingClientRect();
-      const x1 = fa.left + fa.width / 2 - rect.left;
-      const y1 = fa.top + fa.height / 2 - rect.top;
-      const x2 = tb.left + tb.width / 2 - rect.left;
-      const y2 = tb.top + tb.height / 2 - rect.top;
-      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      const dx = Math.abs(x2 - x1);
-      const dy = Math.abs(y2 - y1);
-      let d;
-      if (dy > dx) {
-        const mid = (y1 + y2) / 2;
-        d = `M ${x1} ${y1} C ${x1} ${mid}, ${x2} ${mid}, ${x2} ${y2}`;
-      } else {
-        const mid = (x1 + x2) / 2;
-        d = `M ${x1} ${y1} C ${mid} ${y1}, ${mid} ${y2}, ${x2} ${y2}`;
-      }
-      path.setAttribute("d", d);
-      const on = !selected || (live.has(a) && live.has(b) && (a === selected || b === selected));
+      const pts = route(box(from, scene), box(to, scene));
+      const on = !selected || a === selected || b === selected;
       const color = accent(data.nodes[a].accent);
-      path.setAttribute("fill", "none");
-      path.setAttribute("stroke", color);
-      path.setAttribute("stroke-width", on ? "2.2" : "1.1");
-      path.setAttribute("stroke-opacity", on ? "0.85" : "0.18");
-      path.setAttribute("stroke-linecap", "round");
-      svg.appendChild(path);
+      const opacity = on ? "0.9" : "0.16";
+      svg.appendChild(
+        svgEl("path", {
+          d: pathOf(pts),
+          fill: "none",
+          stroke: color,
+          "stroke-width": on ? "2" : "1.2",
+          "stroke-opacity": opacity,
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round"
+        })
+      );
+      [pts[0], pts[pts.length - 1]].forEach(([cx, cy]) =>
+        svg.appendChild(svgEl("circle", { cx, cy, r: on ? 3 : 2, fill: color, "fill-opacity": opacity }))
+      );
     });
-    drawing = false;
   }
 
   function escapeHtml(s) {
@@ -208,10 +248,6 @@
     if (!id) return;
     selected = id;
     sync();
-  });
-
-  window.addEventListener("resize", () => {
-    if (data) requestAnimationFrame(drawEdges);
   });
 
   if (typeof document$ !== "undefined") {

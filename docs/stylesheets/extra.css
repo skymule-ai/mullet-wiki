@@ -104,17 +104,14 @@ body:has(.stack-home) .md-content {
 
 .stack-stage {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.1rem;
-  align-items: stretch;
-  min-height: 560px;
 }
 
 .stack-scene {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  min-height: 540px;
   border: 1px solid var(--mullet-line);
   border-radius: 18px;
   background:
@@ -167,22 +164,21 @@ body:has(.stack-home) .md-content {
 }
 
 .stack-lane__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  transform-style: preserve-3d;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 270px));
+  justify-content: center;
+  gap: 0.75rem 3rem;
 }
 
 .stack-node {
   --accent: var(--mullet-cyan);
   position: relative;
   box-sizing: border-box;
-  width: 220px;
-  flex: 0 0 220px;
+  min-width: 0;
   padding: 0.85rem 0.95rem 0.95rem;
   color: var(--mullet-ink);
   text-align: left;
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.05), rgba(7, 11, 16, 0.88));
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.06), transparent 60%), #0c121c;
   border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
   border-radius: 14px;
   box-shadow:
@@ -191,7 +187,7 @@ body:has(.stack-home) .md-content {
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
   cursor: pointer;
   transform: translateY(0);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, filter 0.18s ease;
 }
 
 .stack-node[data-accent="amber"] { --accent: var(--mullet-amber); }
@@ -200,7 +196,7 @@ body:has(.stack-home) .md-content {
 
 .stack-node:hover,
 .stack-node.is-active {
-  transform: translateY(-8px);
+  transform: translateY(-3px);
   border-color: var(--accent);
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent),
@@ -209,7 +205,7 @@ body:has(.stack-home) .md-content {
 }
 
 .stack-node.is-dim {
-  opacity: 0.42;
+  filter: saturate(0.35) brightness(0.62);
 }
 
 .stack-node__tag {
@@ -224,6 +220,7 @@ body:has(.stack-home) .md-content {
 
 .stack-node__title {
   display: block;
+  overflow-wrap: anywhere;
   font-family: "Roboto Mono", ui-monospace, monospace;
   font-size: 0.8rem;
   font-weight: 600;
@@ -342,17 +339,33 @@ body:has(.stack-home) .md-content {
   font-size: 0.72rem;
 }
 
-@media (max-width: 76rem) {
-  .stack-stage {
-    grid-template-columns: 1fr;
-    min-height: 0;
-  }
 
-  .stack-iso {
-    transform: none;
-  }
+.stack-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.9rem;
+}
 
-  .stack-inspector {
-    min-height: 280px;
-  }
+.stack-field span {
+  margin-right: 0.3rem;
+  color: var(--mullet-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.md-typeset .stack-field a {
+  padding: 0.25rem 0.7rem;
+  color: var(--mullet-ink);
+  font-size: 0.78rem;
+  border: 1px solid var(--mullet-line);
+  border-radius: 999px;
+}
+
+.md-typeset .stack-field a:hover {
+  color: var(--mullet-cyan);
+  border-color: var(--mullet-cyan);
 }

@@ -17,9 +17,8 @@ Mission frameworks (today: [ergodic MPPI](../frameworks/ergodic-mppi.md)) sit be
 | [mullet-interfaces](interfaces.md) | IDL wire contract |
 | [mullet-core](core.md) | Onboard offboard supervisor |
 | [mullet-paddock](paddock.md) | Operator UI + ROS 2 gateway |
-| [mullet_sitl_sim](sitl.md) | Multi-vehicle SITL fleet |
-| [mullet_ros_base](ros-base.md) | Jetson Orin ROS 2 / CUDA image |
-| [sitl_builder](sitl-builder.md) | PX4 SITL image (`ghcr.io/skymule-ai/px4-sitl`) |
+| [mullet-sim](sitl.md) | Multi-vehicle SITL fleet |
+| [mullet-base](ros-base.md) | Jetson Orin ROS 2 / CUDA image |
 
 ## Domains and names
 
@@ -35,8 +34,8 @@ Instance `N` with `namespace_prefix: uav` → topics `/uav_N/...`, `target_syste
 
 | Image | From |
 | --- | --- |
-| `ghcr.io/skymule-ai/px4-sitl:v1.17.0` | sitl_builder |
-| `ghcr.io/skymule-ai/mullet-ros2-base:v0.5.0` | mullet_ros_base (Jazzy; `v0.4.0` and older are Humble) |
+| `ghcr.io/skymule-ai/px4-sitl:v1.17.0` | mullet-sim (`image/`) |
+| `ghcr.io/skymule-ai/mullet-ros2-base:v0.5.0` | mullet-base (Jazzy; `v0.4.0` and older are Humble) |
 | `mullet-core` drone image | `mullet-core/docker` `FROM` ros_base |
 
 Pin immutable tags on aircraft. `:main` is integration only.

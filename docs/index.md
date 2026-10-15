@@ -9,6 +9,14 @@ hide:
     <p class="stack-kicker">SkyMule · ROS 2 Jazzy · PX4 1.17</p>
     <h1>MULLET</h1>
     <p class="stack-lead">Click a block. Inspect the wiring and the commands. Sidebar pages go deeper.</p>
+    <nav class="stack-field" aria-label="On Field">
+      <span>On Field</span>
+      <a href="on-field/">Flight day</a>
+      <a href="on-field/paddock/">Paddock</a>
+      <a href="on-field/mission-builder/">Mission Builder</a>
+      <a href="on-field/fsm/">FSM</a>
+      <a href="on-field/frameworks/">Frameworks</a>
+    </nav>
   </header>
   <div class="stack-stage">
     <div class="stack-scene" id="stack-scene" data-src="assets/stack.json">

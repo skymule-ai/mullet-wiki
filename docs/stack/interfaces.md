@@ -11,10 +11,10 @@ action/Takeoff.action      takeoff to altitude and hold
 action/Land.action         land and disarm (the only land command)
 action/ReturnHome.action   fly back above takeoff and hold
 msg/DroneHeartbeat.msg     full per-drone snapshot, schema_version 3
-msg/MissionCommand.msg     setpoint a framework streams in MISSION
+msg/MissionCommand.msg     setpoint a framework streams in MISSION (TRAJECTORY / VELOCITY / ACCELERATION, + _3D)
 msg/MissionStatus.msg      per-framework mission + preflight
 srv/LoadMission.srv        validate and prepare (never starts)
-srv/ListMissions.srv       specs this framework accepted on the drone
+srv/ListMissions.srv       mission library: every spec this framework accepted, newest first
 ```
 
 `start_mission` and `hold` are `std_srvs/Trigger`. Paths are in the heartbeat.
