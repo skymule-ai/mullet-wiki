@@ -3,8 +3,6 @@
   let selected = null;
   const observer = new ResizeObserver(() => drawEdges());
 
-  const accent = (name) =>
-    ({ cyan: "#4cc2ff", amber: "#ffb547", mint: "#3ddc97" }[name] || "#4cc2ff");
 
   function initStack() {
     const scene = document.getElementById("stack-scene");
@@ -78,32 +76,20 @@
     return Object.keys(json.nodes).indexOf(id) + 1;
   }
 
-  function related(id) {
-    const set = new Set([id]);
-    data.edges.forEach(([a, b]) => {
-      if (a === id) set.add(b);
-      if (b === id) set.add(a);
-    });
-    return set;
-  }
-
   function sync() {
     const inspector = document.getElementById("stack-inspector");
     if (!data || !inspector) return;
-    const live = related(selected);
     document.querySelectorAll(".stack-node").forEach((el) => {
       const id = el.dataset.node;
       const on = id === selected;
       el.classList.toggle("is-active", on);
-      el.classList.toggle("is-dim", selected && !live.has(id));
       el.setAttribute("aria-pressed", on ? "true" : "false");
     });
     inspector.replaceChildren();
     const node = data.nodes[selected];
     if (!node) {
       inspector.innerHTML =
-        `<p class="stack-empty">Click a block to inspect wiring and commands.</p>` +
-        `<p class="stack-hint">Keys 1–${Object.keys(data.nodes).length}</p>`;
+        `<p class="stack-empty">Select a block to see what it does and what it connects to.</p>`;
       drawEdges();
       return;
     }
@@ -118,33 +104,11 @@
     wires.className = "stack-inspector__wires";
     wires.textContent = node.wires;
     inspector.append(kicker, title, blurb, wires);
-    (node.commands || []).forEach((block) => {
-      const section = document.createElement("section");
-      section.className = "stack-cmd";
-      const head = document.createElement("header");
-      const h = document.createElement("h3");
-      h.textContent = block.label;
-      const copy = document.createElement("button");
-      copy.type = "button";
-      copy.className = "stack-copy";
-      copy.textContent = "copy";
-      copy.addEventListener("click", () => {
-        navigator.clipboard.writeText(block.lines.join("\n")).then(() => {
-          copy.textContent = "copied";
-          setTimeout(() => (copy.textContent = "copy"), 1200);
-        });
-      });
-      head.append(h, copy);
-      const pre = document.createElement("pre");
-      pre.textContent = block.lines.join("\n");
-      section.append(head, pre);
-      inspector.appendChild(section);
-    });
     if (node.page) {
       const more = document.createElement("a");
       more.className = "stack-more";
       more.href = new URL(node.page, document.baseURI).href;
-      more.textContent = "Open page →";
+      more.textContent = "Read the page";
       inspector.appendChild(more);
     }
     drawEdges();
@@ -213,23 +177,21 @@
       const to = document.getElementById(`stack-node-${b}`);
       if (!from || !to) return;
       const pts = route(box(from, scene), box(to, scene));
-      const on = !selected || a === selected || b === selected;
-      const color = accent(data.nodes[a].accent);
-      const opacity = on ? "0.9" : "0.16";
-      svg.appendChild(
+      const on = a === selected || b === selected;
+      const group = svgEl("g", { class: on ? "is-on" : "" });
+      group.appendChild(
         svgEl("path", {
           d: pathOf(pts),
           fill: "none",
-          stroke: color,
+          stroke: "currentColor",
           "stroke-width": on ? "2" : "1.2",
-          "stroke-opacity": opacity,
-          "stroke-linecap": "round",
           "stroke-linejoin": "round"
         })
       );
       [pts[0], pts[pts.length - 1]].forEach(([cx, cy]) =>
-        svg.appendChild(svgEl("circle", { cx, cy, r: on ? 3 : 2, fill: color, "fill-opacity": opacity }))
+        group.appendChild(svgEl("circle", { cx, cy, r: on ? 3 : 2, fill: "currentColor" }))
       );
+      svg.appendChild(group);
     });
   }
 

@@ -1,43 +1,45 @@
 # On Field
 
-How to fly MULLET, step by step. For what each repo is and why, see [Stack](../stack/index.md).
+This section is for the people flying the drone. It covers bringing the stack up, flying a mission, and what to do when something refuses. For what each component is and why it exists, read [Architecture](../concepts/architecture.md).
 
 !!! danger "Two rules that never change"
-    **The e-stop is the RC kill switch.** Nothing in paddock or core replaces it.
-    **Land is the only way down.** It works from any armed state and cannot be cancelled.
+    The emergency stop is the RC kill switch. Nothing in Paddock or the supervisor replaces it.
+
+    **Land** is the only way down. It works from any armed state, and once it is accepted it cannot be cancelled.
 
 <div class="grid cards" markdown>
 
-- [**Paddock**](paddock.md): bring up the gateway and the UI, find the drone, use the five buttons.
-- [**Mission Builder**](mission-builder.md): draw an `ergodic/3` mission, deploy it, reload an earlier one.
-- [**FSM**](fsm.md): what each state allows, what ends it, and what PX4 can override.
-- [**Frameworks**](frameworks.md): run the ergodic node on the Orin and read its preflight.
+- [**Paddock**](paddock.md): start the ground station, find the drone, and use the five command buttons.
+- [**Mission Builder**](mission-builder.md): draw a mission on the map, deploy it, and reload an earlier one.
+- [**Supervisor states**](fsm.md): what each state accepts, what ends it, and when PX4 takes over.
+- [**Running a framework**](frameworks.md): start the ergodic framework on the Orin and read its preflight.
 
 </div>
 
 ## Flight day
 
-Do the steps in this order. Each one depends on the step before it.
+Do these steps in order. Each one assumes the one before it worked.
 
-| # | Do | Check |
+| Step | Do | Check |
 | --- | --- | --- |
-| 1 | Pin the images: `mullet-base:v0.5.1`, PX4 1.17.x on the Pixhawk | never `:main` on the aircraft |
-| 2 | Use one domain everywhere: core `.env`, mission `.env`, paddock `.env.ros2`, PX4 `UXRCE_DDS_DOM_ID` | all `99` (aircraft) or `42` (SITL) |
-| 3 | **Core** up on the Orin: `mullet-core/docker` → `docker compose up -d` | `ros2 topic echo /mullet/heartbeat --once` |
-| 4 | **Framework** up: `docker/mission` → `docker compose up -d`, then `sudo nvpmodel -m 2` | mission status `EMPTY` |
-| 5 | **Paddock** on the laptop: `make ros2-dev` + `make frontend-dev` | `uav_0` listed, then **Connect** |
-| 6 | **Offline map**: Mission Builder → *Download this area* while you still have internet | tiles cached |
-| 7 | **Takeoff** | `TRANSITION` → `HOLD` |
-| 8 | **Load** the mission from the Builder | preflight runs → `READY` |
-| 9 | **Start mission** | `MISSION`, framework `RUNNING` |
-| 10 | **Hold** / **Return home** when needed; **Start mission** again resumes | `HOLD`, framework `PAUSED` |
-| 11 | **Land** | `IDLE` once PX4 disarms |
+| 1 | Confirm the versions: the Orin's images are pinned to immutable tags, and the Pixhawk runs PX4 v1.17.0. | No image uses `:main`. |
+| 2 | Confirm every component uses the same ROS 2 domain (the five places are listed in [Conventions](../concepts/conventions.md#ros-2-domain)). | All of them say `99`. |
+| 3 | On the Orin, check the PX4 parameters: `cd ~/mullet-px4 && scripts/set-profile.py --show`. | The expected localization profile, with no drift. |
+| 4 | Start the supervisor: `cd mullet-core/docker && docker compose up -d`. | `ros2 topic echo /mullet/heartbeat --once` prints a heartbeat. |
+| 5 | Start the framework and set the Orin to full power. See [Running a framework](frameworks.md#start-it-on-the-orin). | Its status is `EMPTY`. |
+| 6 | Start Paddock on the laptop (see [Paddock](paddock.md#start-paddock)). | `uav_0` is listed. Press **Connect**. |
+| 7 | While you still have internet, cache the map: Mission Builder, **Download this area**. | The tiles are cached. |
+| 8 | Press **Takeoff**. | The state goes from `TRANSITION` to `HOLD`. |
+| 9 | Deploy the mission from the Mission Builder. | The preflight runs and the framework reports `READY`. |
+| 10 | Press **Start mission**. | The supervisor is in `MISSION` and the framework is `RUNNING`. |
+| 11 | Press **Hold** or **Return home** when needed. **Start mission** resumes. | The supervisor is in `HOLD` and the framework is `PAUSED`. |
+| 12 | Press **Land**. | The state reaches `IDLE` once PX4 disarms. |
 
-## If → then
+## Troubleshooting
 
-| If | Then |
-| --- | --- |
-| No drone in paddock | Domain mismatch or core not running. Check step 2, then step 3. |
-| Start mission greyed out | The framework is not `READY`. Read its preflight lines in the panel. |
-| Drone holds in `MISSION` without moving | The command stream is stale: the framework stopped publishing. Check `docker logs ergodic-mission`. |
-| Pilot flipped out of Offboard | Core drops to a passive `HOLD`. Switch back to Offboard to resume control, or Land. |
+| Symptom | Cause | Fix |
+| --- | --- | --- |
+| No drone appears in Paddock. | The domains differ, or the supervisor is not running. | Repeat step 2, then step 4. |
+| **Start mission** is greyed out. | The framework is not `READY`. | Read its preflight lines in the mission panel. |
+| The drone holds in `MISSION` without moving. | The framework stopped streaming commands. After 2 s the supervisor drops to `HOLD`. | Check `docker logs ergodic-mission`. |
+| The pilot switched out of Offboard. | The supervisor dropped to a passive `HOLD`. | Switch back to Offboard to resume, or press **Land**. |

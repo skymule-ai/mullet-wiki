@@ -1,6 +1,6 @@
 # MULLET wiki
 
-SkyMule stack docs, published at <https://skymule-ai.github.io/mullet-wiki/> on every push to `main`. To edit, clone and serve locally.
+Skymule stack docs, published at <https://skymule-ai.github.io/mullet-wiki/> on every push to `main`. To edit, clone and serve locally.
 
 ```bash
 git clone git@github.com:skymule-ai/mullet-wiki.git

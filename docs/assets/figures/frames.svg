@@ -1,0 +1,66 @@
+<svg viewBox="0 0 720 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="frames-title">
+  <title id="frames-title">The same heading in PX4 local NED and ROS ENU, seen from above, and a height above the EKF origin seen from the side</title>
+  <defs>
+    <marker id="frames-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+    </marker>
+    <marker id="frames-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" style="fill: var(--md-accent-fg-color)"/>
+    </marker>
+  </defs>
+  <g font-size="15" fill="currentColor">
+    <text x="110" y="28" text-anchor="middle" font-weight="700">PX4 local NED, from above</text>
+    <text x="350" y="28" text-anchor="middle" font-weight="700">ROS ENU, from above</text>
+    <text x="610" y="28" text-anchor="middle" font-weight="700">Side view</text>
+  </g>
+  <g stroke="currentColor" stroke-width="1.6" fill="none">
+    <line x1="110" y1="190" x2="110" y2="80" marker-end="url(#frames-arrow)"/>
+    <line x1="110" y1="190" x2="220" y2="190" marker-end="url(#frames-arrow)"/>
+    <circle cx="110" cy="190" r="7"/>
+    <line x1="105" y1="185" x2="115" y2="195"/>
+    <line x1="115" y1="185" x2="105" y2="195"/>
+    <line x1="350" y1="190" x2="460" y2="190" marker-end="url(#frames-arrow)"/>
+    <line x1="350" y1="190" x2="350" y2="80" marker-end="url(#frames-arrow)"/>
+    <circle cx="350" cy="190" r="7"/>
+  </g>
+  <circle cx="350" cy="190" r="2" fill="currentColor"/>
+  <g font-size="15" fill="currentColor">
+    <text x="118" y="86">x, north</text>
+    <text x="196" y="210">y, east</text>
+    <text x="70" y="214">z down</text>
+    <text x="436" y="210">x, east</text>
+    <text x="358" y="86">y, north</text>
+    <text x="312" y="214">z up</text>
+  </g>
+  <g style="stroke: var(--md-accent-fg-color)" stroke-width="2" fill="none">
+    <line x1="110" y1="190" x2="179" y2="132" stroke-dasharray="5 4" marker-end="url(#frames-arrow-accent)"/>
+    <path d="M110,148 A42,42 0 0 1 142.2,163"/>
+    <line x1="350" y1="190" x2="419" y2="132" stroke-dasharray="5 4" marker-end="url(#frames-arrow-accent)"/>
+    <path d="M392,190 A42,42 0 0 0 382.2,163"/>
+  </g>
+  <g font-size="15" style="fill: var(--md-accent-fg-color)">
+    <text x="183" y="128">heading</text>
+    <text x="423" y="128">heading</text>
+  </g>
+  <g font-size="15" fill="currentColor" text-anchor="middle">
+    <text x="110" y="244">ψ = 50°, clockwise from north</text>
+    <text x="350" y="244">ψ = 40° = 90° − 50°,</text>
+    <text x="350" y="262">counter-clockwise from east</text>
+  </g>
+  <g stroke="currentColor" stroke-width="1.6" fill="none">
+    <line x1="520" y1="200" x2="705" y2="200" style="stroke: var(--md-default-fg-color--light)"/>
+    <line x1="545" y1="200" x2="545" y2="256" marker-end="url(#frames-arrow)"/>
+    <line x1="545" y1="200" x2="615" y2="200" marker-end="url(#frames-arrow)"/>
+    <rect x="636" y="96" width="34" height="12" rx="3"/>
+    <line x1="653" y1="108" x2="653" y2="198" stroke-dasharray="4 4" style="stroke: var(--md-accent-fg-color)"/>
+  </g>
+  <circle cx="545" cy="200" r="4" fill="currentColor"/>
+  <g font-size="15" fill="currentColor">
+    <text x="552" y="242">z, down</text>
+    <text x="592" y="218">x, north</text>
+    <text x="528" y="190">EKF origin</text>
+    <text x="640" y="86">drone</text>
+    <text x="662" y="158" style="fill: var(--md-accent-fg-color)">h</text>
+    <text x="600" y="280" text-anchor="middle">height h above the origin: z = −h</text>
+  </g>
+</svg>

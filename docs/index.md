@@ -6,16 +6,18 @@ hide:
 
 <div class="stack-home" markdown="0">
   <header class="stack-hero">
-    <p class="stack-kicker">SkyMule · ROS 2 Jazzy · PX4 1.17</p>
+    <img class="stack-logo" src="assets/logos/skymule_full_black.svg#only-light" alt="Skymule">
+    <img class="stack-logo" src="assets/logos/skymule_full_white.svg#only-dark" alt="Skymule">
+    <p class="stack-kicker">ROS 2 Jazzy · PX4 1.17</p>
     <h1>MULLET</h1>
-    <p class="stack-lead">Click a block. Inspect the wiring and the commands. Sidebar pages go deeper.</p>
+    <p class="stack-lead">An autonomy stack for PX4 multicopters, run from a Jetson Orin. Select a block to see what it does and what it connects to.</p>
     <nav class="stack-field" aria-label="On Field">
       <span>On Field</span>
       <a href="on-field/">Flight day</a>
       <a href="on-field/paddock/">Paddock</a>
       <a href="on-field/mission-builder/">Mission Builder</a>
-      <a href="on-field/fsm/">FSM</a>
-      <a href="on-field/frameworks/">Frameworks</a>
+      <a href="on-field/fsm/">Supervisor states</a>
+      <a href="on-field/frameworks/">Running a framework</a>
     </nav>
   </header>
   <div class="stack-stage">
@@ -27,4 +29,12 @@ hide:
   </div>
 </div>
 
-Keys `1`–`8` select a block. Command blocks in the inspector copy as a unit.
+Move between blocks with Tab, or press 1 to 9 to jump to one.
+
+<div class="grid cards" markdown>
+
+- **Fly it.** Bring the stack up, fly a mission and read what refuses: [On Field](on-field/index.md).
+- **Build on it.** How the layers divide control, the frames and names everything uses, and one page per repository: [Architecture](concepts/architecture.md), [Conventions](concepts/conventions.md), [Stack](stack/index.md).
+- **Research on it.** The framework contract, the ergodic controller's formulation, and projects waiting for someone to take them: [Frameworks](frameworks/index.md), [Projects](projects/index.md).
+
+</div>

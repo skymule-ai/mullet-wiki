@@ -1,41 +1,35 @@
 # Stack
 
-MULLET is the SkyMule drone stack: ROS 2 **Jazzy**, PX4 **1.17.x**, Fast DDS (`rmw_fastrtps_cpp`), typically `FASTDDS_BUILTIN_TRANSPORTS=UDPv4`.
+MULLET is a set of small repositories, each with one job. Every component ships as a versioned container image, so a drone runs a pinned, reproducible set of images. This section has one reference page per repository. How the pieces fit together is on [Architecture](../concepts/architecture.md). Frames, names, domains and versions are on [Conventions](../concepts/conventions.md).
 
-The browser never talks to PX4. Command path:
+## Flight control
 
-```text
-Browser → paddock gateway → mullet_interfaces → mullet_core → PX4
-```
-
-Mission frameworks (today: [ergodic MPPI](../frameworks/ergodic-mppi.md)) sit beside core. They stream `MissionCommand` while the supervisor is in `MISSION`. They never publish `/fmu/in/*`.
-
-## Who owns what
-
-| Repo | Role |
+| Repository | What it does |
 | --- | --- |
-| [mullet-interfaces](interfaces.md) | IDL wire contract |
-| [mullet-core](core.md) | Onboard offboard supervisor |
-| [mullet-paddock](paddock.md) | Operator UI + ROS 2 gateway |
-| [mullet-sim](sitl.md) | Multi-vehicle SITL fleet |
-| [mullet-base](ros-base.md) | Jetson Orin ROS 2 / CUDA image |
+| [mullet-interfaces](interfaces.md) | The ROS 2 messages, services and actions every other repository builds against |
+| [mullet-core](core.md) | The supervisor: the drone's state machine, and the only node that sends setpoints to PX4 |
+| [mullet-px4](px4.md) | PX4 firmware pin, each drone's parameter baseline, and the localization profiles |
 
-## Domains and names
+## Operator
 
-| | Sim | Aircraft (example) |
-| --- | --- | --- |
-| `ROS_DOMAIN_ID` | `42` | `99` |
-| drone id | `uav_N` | from heartbeat |
-| PX4 `UXRCE_DDS_DOM_ID` | same as ROS | same as ROS |
-
-Instance `N` with `namespace_prefix: uav` → topics `/uav_N/...`, `target_system = N+1`. Instance `0` uses bare `/fmu/...`.
-
-## Images
-
-| Image | From |
+| Repository | What it does |
 | --- | --- |
-| `ghcr.io/skymule-ai/px4-sitl:v1.17.0` | mullet-sim (`image/`) |
-| `ghcr.io/skymule-ai/mullet-base:v0.5.1` | mullet-base (Jazzy; older tags are `mullet-ros2-base`) |
-| `mullet-core` drone image | `mullet-core/docker` `FROM` ros_base |
+| [mullet-paddock](paddock.md) | The ground station: web UI and ROS 2 gateway |
 
-Pin immutable tags on aircraft. `:main` is integration only.
+## Localization
+
+| Repository | What it does |
+| --- | --- |
+| [mullet-localization](localization.md) | One drone's localization deployment: pins the images below, holds the sensor calibration, and bridges the estimate into EKF2 |
+| [mullet-drivers](drivers.md) | Driver images for the Intel RealSense D435i and the Livox MID-360, plus an optional visualization image |
+| [mullet-vio](vio.md) | Visual-inertial odometry images; OpenVINS today |
+| [mullet-lio](lio.md) | LiDAR-inertial odometry images; a scaffold, no implementation yet |
+
+## Platform and simulation
+
+| Repository | What it does |
+| --- | --- |
+| [mullet-base](ros-base.md) | The ROS 2 Jazzy base image for the Orin that every drone image builds on |
+| [mullet-sim](sitl.md) | A multi-drone PX4 software-in-the-loop simulator, and the PX4 SITL image |
+
+Mission frameworks live in their own repositories and are listed under [Frameworks](../frameworks/index.md).
