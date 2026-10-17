@@ -21,7 +21,7 @@ Do the steps in this order. Each one depends on the step before it.
 
 | # | Do | Check |
 | --- | --- | --- |
-| 1 | Pin the images: `mullet-ros2-base:v0.5.0`, PX4 1.17.x on the Pixhawk | never `:main` on the aircraft |
+| 1 | Pin the images: `mullet-base:v0.5.1`, PX4 1.17.x on the Pixhawk | never `:main` on the aircraft |
 | 2 | Use one domain everywhere: core `.env`, mission `.env`, paddock `.env.ros2`, PX4 `UXRCE_DDS_DOM_ID` | all `99` (aircraft) or `42` (SITL) |
 | 3 | **Core** up on the Orin: `mullet-core/docker` → `docker compose up -d` | `ros2 topic echo /mullet/heartbeat --once` |
 | 4 | **Framework** up: `docker/mission` → `docker compose up -d`, then `sudo nvpmodel -m 2` | mission status `EMPTY` |

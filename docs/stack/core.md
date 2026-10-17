@@ -52,7 +52,7 @@ Launch reads `config/mullet_core_params.yaml` only. Set `vehicle_instance` and `
 
 ## Aircraft
 
-Image builds on `mullet-ros2-base` and compiles sibling `mullet-interfaces`. `UXRCE_DDS_DOM_ID` must equal `ROS_DOMAIN_ID`.
+Image builds on `mullet-base` and compiles sibling `mullet-interfaces`. `UXRCE_DDS_DOM_ID` must equal `ROS_DOMAIN_ID`.
 
 ```bash
 cd docker

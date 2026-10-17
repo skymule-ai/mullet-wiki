@@ -35,7 +35,7 @@ Instance `N` with `namespace_prefix: uav` → topics `/uav_N/...`, `target_syste
 | Image | From |
 | --- | --- |
 | `ghcr.io/skymule-ai/px4-sitl:v1.17.0` | mullet-sim (`image/`) |
-| `ghcr.io/skymule-ai/mullet-ros2-base:v0.5.0` | mullet-base (Jazzy; `v0.4.0` and older are Humble) |
+| `ghcr.io/skymule-ai/mullet-base:v0.5.1` | mullet-base (Jazzy; older tags are `mullet-ros2-base`) |
 | `mullet-core` drone image | `mullet-core/docker` `FROM` ros_base |
 
 Pin immutable tags on aircraft. `:main` is integration only.

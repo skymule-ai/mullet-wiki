@@ -189,8 +189,8 @@
       "title": "mullet-base",
       "tag": "Jetson image",
       "accent": "amber",
-      "blurb": "ARM64 ROS 2 Jazzy base for Jetson Orin (JetPack 6.2.2). CUDA 13.2 + compat, px4_msgs 1.17, Micro XRCE-DDS Agent v2.4.2. Pin v0.5.0+, never :main on aircraft.",
-      "wires": "FROM ghcr.io/skymule-ai/mullet-ros2-base:v0.5.0 — consumed by mullet-core and ergodic mission images.",
+      "blurb": "ARM64 ROS 2 Jazzy base for Jetson Orin (JetPack 6.2.2). CUDA 13.2 + compat, px4_msgs 1.17, Micro XRCE-DDS Agent v2.4.2. Pin v0.5.1+, never :main on aircraft.",
+      "wires": "FROM ghcr.io/skymule-ai/mullet-base:v0.5.1 — consumed by mullet-core and ergodic mission images.",
       "page": "stack/ros-base/",
       "commands": [
         {
@@ -204,7 +204,7 @@
           "label": "Orin",
           "lines": [
             "sudo bash jetson-orin-uart/install.sh && sudo reboot",
-            "MULLET_ROS_IMAGE_TAG=v0.5.0 docker compose -f docker-compose.yml -f docker-compose.jetson.yml run --rm ros2-base"
+            "MULLET_ROS_IMAGE_TAG=v0.5.1 docker compose -f docker-compose.yml -f docker-compose.jetson.yml run --rm ros2-base"
           ]
         }
       ],

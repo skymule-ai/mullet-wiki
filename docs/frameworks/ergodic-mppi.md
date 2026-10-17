@@ -51,7 +51,7 @@ Laptop GPU often misses the 16 ms gate. Flow-only: `-p deadline_ms:=150.0`.
 
 ## Aircraft (Orin)
 
-Image `FROM mullet-ros2-base` (arm64), NVIDIA runtime. Match `DRONE_ID` and `ROS_DOMAIN_ID` to `mullet_core`.
+Image `FROM mullet-base` (arm64), NVIDIA runtime. Match `DRONE_ID` and `ROS_DOMAIN_ID` to `mullet_core`.
 
 ```bash
 ssh orin 'git clone --recursive git@github.com:skymule-ai/ergodic_mppi.git'   # once

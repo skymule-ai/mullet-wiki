@@ -4,7 +4,7 @@ ARM64 ROS 2 **Jazzy** base image for NVIDIA **Jetson Orin** (JetPack 6.2.2 / L4T
 
 Repo: [skymule-ai/mullet-base](https://github.com/skymule-ai/mullet-base)
 
-`ghcr.io/skymule-ai/mullet-ros2-base`. Tags `v0.4.0` and older are Humble. `v0.5.0+` is Jazzy. Aircraft images pin an immutable tag, never `:main`.
+`ghcr.io/skymule-ai/mullet-base`, Jazzy, from `v0.5.1`. Older tags are published as `mullet-ros2-base` (`v0.4.0` and older are Humble). Aircraft images pin an immutable tag, never `:main`.
 
 Consumed by `mullet-core/docker` and the ergodic mission image.
 
@@ -26,7 +26,7 @@ sudo reboot
 ```
 
 ```bash
-MULLET_ROS_IMAGE_TAG=v0.5.0 docker compose \
+MULLET_ROS_IMAGE_TAG=v0.5.1 docker compose \
   -f docker-compose.yml -f docker-compose.jetson.yml \
   run --rm ros2-base
 ```
@@ -38,5 +38,5 @@ MULLET_ROS_IMAGE_TAG=v0.5.0 docker compose \
 Downstream:
 
 ```dockerfile
-FROM ghcr.io/skymule-ai/mullet-ros2-base:v0.5.0
+FROM ghcr.io/skymule-ai/mullet-base:v0.5.1
 ```
