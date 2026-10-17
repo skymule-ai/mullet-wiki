@@ -1,19 +1,34 @@
 site_name: MULLET
-site_description: SkyMule stack wiki — ROS 2 Jazzy, PX4 1.17
+site_description: Skymule stack wiki — ROS 2 Jazzy, PX4 1.17
 repo_url: https://github.com/skymule-ai/mullet-wiki
 repo_name: skymule-ai/mullet-wiki
 edit_uri: edit/main/docs/
 strict: true
+validation:
+  anchors: warn
 
 theme:
   name: material
+  logo: assets/logos/skymule_full_white.svg
+  favicon: assets/logos/skymule_icon_white-on-black.svg
   font:
     text: Roboto
     code: Roboto Mono
   palette:
-    scheme: slate
-    primary: custom
-    accent: cyan
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: light blue
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: light blue
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
   features:
     - navigation.instant
     - navigation.tracking
@@ -32,23 +47,41 @@ nav:
       - on-field/index.md
       - Paddock: on-field/paddock.md
       - Mission Builder: on-field/mission-builder.md
-      - FSM: on-field/fsm.md
-      - Frameworks: on-field/frameworks.md
+      - Supervisor states: on-field/fsm.md
+      - Running a framework: on-field/frameworks.md
+  - Concepts:
+      - Architecture: concepts/architecture.md
+      - Conventions: concepts/conventions.md
+      - Glossary: concepts/glossary.md
   - Stack:
       - stack/index.md
       - mullet-interfaces: stack/interfaces.md
       - mullet-core: stack/core.md
+      - mullet-px4: stack/px4.md
       - mullet-paddock: stack/paddock.md
-      - mullet-sim: stack/sitl.md
+      - mullet-localization: stack/localization.md
+      - mullet-drivers: stack/drivers.md
+      - mullet-vio: stack/vio.md
+      - mullet-lio: stack/lio.md
       - mullet-base: stack/ros-base.md
+      - mullet-sim: stack/sitl.md
   - Frameworks:
       - frameworks/index.md
       - Ergodic MPPI: frameworks/ergodic-mppi.md
+  - Projects:
+      - projects/index.md
+      - Onboard mapping: projects/onboard-mapping.md
+      - Obstacle-aware planner: projects/obstacle-aware-planner.md
+      - Compressed voxel link: projects/voxel-link.md
+      - Gaussian splat reconstruction: projects/gaussian-splat-reconstruction.md
+  - Contributing: contributing.md
 
 extra_css:
   - stylesheets/extra.css
 extra_javascript:
   - javascripts/stack.js
+  - javascripts/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js
 
 markdown_extensions:
   - admonition
@@ -68,6 +101,10 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.snippets:
+      check_paths: true
 
 extra:
   social:

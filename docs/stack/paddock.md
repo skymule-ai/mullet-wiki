@@ -1,28 +1,62 @@
 # mullet-paddock
 
-Operator control center: React / Vite UI + FastAPI gateway with a ROS 2 adapter.
+mullet-paddock is the ground station. It has two parts: a React and Vite web UI, and a FastAPI gateway that talks ROS 2 on the operator's behalf. The UI never publishes to ROS 2 or PX4: it calls the gateway, which calls the supervisor's actions and services. How to use it in the field is on [On Field: Paddock](../on-field/paddock.md).
 
-Repo: [skymule-ai/mullet-paddock](https://github.com/skymule-ai/mullet-paddock)
+Repository: [skymule-ai/mullet-paddock](https://github.com/skymule-ai/mullet-paddock)
+
+## Interfaces
+
+| Direction | Name | Type | Notes |
+| --- | --- | --- | --- |
+| subscribes | `/mullet/heartbeat` | `DroneHeartbeat` | discovers drones; drops one after 1 s of silence |
+| subscribes | `/mullet/mission_status` | `MissionStatus` | discovers frameworks |
+| subscribes | `/mullet/localization_status` | `LocalizationStatus` | shows which sources EKF2 fuses |
+| calls | takeoff, land, return home | actions | names taken from the heartbeat |
+| calls | start mission, hold | `std_srvs/Trigger` | names taken from the heartbeat |
+| calls | load, list | `LoadMission`, `ListMissions` | names taken from `MissionStatus` |
+| serves | HTTP on port 8000 | REST and WebSocket | the gateway API |
+| serves | HTTP on port 5173 | web UI | development server |
+
+A command returns as soon as the supervisor accepts or refuses it. A refusal is still HTTP 200, with `accepted: false` and the reason in `message`. Progress arrives through the heartbeat.
+
+## Gateway API
 
 ```text
-Browser UI → FastAPI gateway → ROS 2 clients → mullet_interfaces → mullet_core → PX4
+GET  /api/health
+GET  /api/drones
+GET  /api/drones/{drone_id}
+POST /api/drones/{drone_id}/connect
+POST /api/drones/{drone_id}/disconnect
+POST /api/drones/{drone_id}/takeoff                       body: {"altitude_m": 2.0}
+POST /api/drones/{drone_id}/land
+POST /api/drones/{drone_id}/return-home
+POST /api/drones/{drone_id}/start-mission
+POST /api/drones/{drone_id}/hold
+GET  /api/drones/{drone_id}/events
+GET  /api/drones/{drone_id}/missions
+POST /api/drones/{drone_id}/missions/{framework}/load     body: {"spec": {...}}
+GET  /api/drones/{drone_id}/missions/{framework}/stored
+GET  /api/tiles/{terrain|vector}/{z}/{x}/{y}
+POST /api/tiles/prefetch                                  body: {"west", "south", "east", "north"}
+WS   /ws/drones
+WS   /ws/drones/{drone_id}
 ```
 
-No mock mode. Dev flies sibling `mullet-sim` (real PX4 SITL + `mullet_core`). Only `ROS_DOMAIN_ID` differs from an aircraft.
+The gateway refuses **Start mission** until a framework on that drone reports `READY` or `PAUSED`.
 
-The UI must never publish `/fmu/in/*`. Land is the only way down. E-stop is the RC kill switch, not this UI.
+## Configuration
 
-Gateway `:8000` · frontend `:5173`. Discovery is heartbeat-only (`/mullet/heartbeat`).
+| Setting | Where | Meaning |
+| --- | --- | --- |
+| `ROS_DOMAIN_ID` | `.env.ros2` | the drone's domain (see [Conventions](../concepts/conventions.md#ros-2-domain)) |
+| `FASTDDS_BUILTIN_TRANSPORTS` | compose file | `UDPv4`; leave it |
+| `MULLET_TILE_CACHE` | environment | where map tiles are cached; `.tile-cache/` in Docker |
 
-## Actions
+The map draws on OpenFreeMap vector tiles and AWS terrain tiles, both cached by the gateway. The optional Esri satellite layer is online only.
 
-`IDLE → TRANSITION → HOLD ⇄ MISSION`. Buttons: Takeoff, Start mission, Hold, Return home, Land.
+## Build and run
 
-Start mission is refused until a framework on that drone reports `READY` (or `PAUSED` to resume).
-
-Mission builder (`#/mission-builder`) draws framework specs on MapLibre, in 2D or a 3D view (terrain, buildings, obstacle extrusions, density ellipsoids). Ergodic is `ergodic/3`, `trajectory` mode by default. **Previous missions** lists the drone's library (`GET /api/drones/{id}/missions/{framework}/stored`) to inspect, copy or reload. Operator steps: [On Field → Mission Builder](../on-field/mission-builder.md). **Download this area** prefetches vector + terrain tiles into `MULLET_TILE_CACHE` / `.tile-cache/` (`POST /api/tiles/prefetch`).
-
-## SITL + UI
+There is no mock mode. Development flies the simulator, real PX4 SITL drones each running a supervisor, through the same gateway an aircraft uses. Only `ROS_DOMAIN_ID` differs.
 
 ```bash
 cp .env.ros2.example .env.ros2
@@ -33,27 +67,8 @@ make sim-dev
 make frontend-dev
 ```
 
-`make sim-dev` runs `../mullet-sim/run.sh --headless --config config/paddock.yaml --domain <ROS_DOMAIN_ID>` then the gateway. Default fleet: `uav_1`, `uav_2` on domain **42**.
+`make sim-dev` starts mullet-sim headless with `config/paddock.yaml` (drones `uav_1` and `uav_2` on domain 42), then the gateway. `make ros2-dev` starts only the gateway, for an aircraft. `make test` runs the unit tests, which need no ROS 2.
 
-```bash
-make sim-down
-git -C gateway/vendor/mullet_interfaces pull --ff-only
-```
+## Source of truth
 
-## Aircraft
-
-Set `ROS_DOMAIN_ID` in `.env.ros2` to the aircraft (example **99**) and keep Fast DDS on UDPv4 (compose default).
-
-```bash
-make ros2-dev
-make frontend-dev
-```
-
-```bash
-curl -s localhost:8000/api/health
-curl -s localhost:8000/api/drones
-curl -sX POST localhost:8000/api/drones/uav_1/takeoff \
-  -H 'content-type: application/json' -d '{"altitude_m": 3.0}'
-```
-
-Rejected commands are HTTP 200 with `accepted: false`.
+The repository's `README.md` and `CLAUDE.md`. Two files are tied to the supervisor's heartbeat and break silently when it changes: `frontend/src/features/drones/stateMachine.ts` (state labels) and `gateway/mullet_control_gateway/adapters/ros2_adapter.py` (heartbeat fields).

@@ -1,0 +1,28 @@
+<svg viewBox="0 0 540 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="lead-title">
+  <title id="lead-title">In a trajectory mode the supervisor clamps the position setpoint onto a circle of radius max_xy_position_lead_m around the drone</title>
+  <defs>
+    <marker id="lead-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" style="fill: var(--md-accent-fg-color)"/>
+    </marker>
+  </defs>
+  <path d="M60,240 C160,215 300,120 400,95 S500,70 520,66" fill="none" stroke-width="2" stroke-dasharray="6 5" style="stroke: var(--md-default-fg-color--light)"/>
+  <circle cx="160" cy="160" r="72" fill="none" stroke-width="1.6" stroke-dasharray="3 4" stroke="currentColor"/>
+  <line x1="160" y1="160" x2="400" y2="95" stroke-width="1.2" stroke-dasharray="2 4" stroke="currentColor"/>
+  <line x1="160" y1="160" x2="227.7" y2="141.7" stroke-width="2.4" marker-end="url(#lead-arrow)" style="stroke: var(--md-accent-fg-color)"/>
+  <line x1="160" y1="160" x2="160" y2="88" stroke-width="1.2" stroke="currentColor"/>
+  <g stroke="currentColor" stroke-width="1.8" fill="none">
+    <circle cx="160" cy="160" r="9"/>
+    <line x1="150" y1="150" x2="170" y2="170"/>
+    <line x1="170" y1="150" x2="150" y2="170"/>
+  </g>
+  <circle cx="400" cy="95" r="6" fill="currentColor"/>
+  <circle cx="231" cy="141" r="6" style="fill: var(--md-accent-fg-color)"/>
+  <g font-size="15" fill="currentColor">
+    <text x="96" y="195">drone</text>
+    <text x="330" y="66">planned position</text>
+    <text x="456" y="58" style="fill: var(--md-default-fg-color--light)">plan</text>
+    <text x="168" y="118">1.0 m</text>
+    <text x="40" y="262">circle radius: max_xy_position_lead_m</text>
+    <text x="243" y="160" style="fill: var(--md-accent-fg-color)">setpoint sent to PX4</text>
+  </g>
+</svg>
