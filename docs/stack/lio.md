@@ -17,7 +17,7 @@ FAST-LIO2 needs `CustomMsg` because only it carries each point's time, which is 
 
 ## Configuration
 
-`config/fast-lio/mid360.yaml` is upstream's MID-360 file with three changes: the factory LiDAR-IMU extrinsic is held fixed, and map publishing and PCD saving are off (both grow without bound in flight). A patch makes the odometry standard (covariance in ROS order, twist in the body frame), which the bridge needs. The drone's own copy lives in mullet-localization. The repository's `docs/fast-lio.md` explains the estimator and its failure modes.
+`config/fast-lio/mid360.yaml` is upstream's MID-360 file with three changes: the factory LiDAR-IMU extrinsic is held fixed, and map publishing and PCD saving are off (both grow without bound in flight). Two patches make the output what the bridge needs: a gravity-aligned world (z up whatever the mount), and standard odometry (covariance in ROS order, twist in the body frame). The drone's own copy lives in mullet-localization. The repository's `docs/fast-lio.md` explains the estimator and its failure modes.
 
 ## Build and run
 

@@ -9,7 +9,7 @@ Repository: [skymule-ai/mullet-drivers](https://github.com/skymule-ai/mullet-dri
 | Image | Contents | Publishes |
 | --- | --- | --- |
 | `ghcr.io/skymule-ai/mullet-drivers-realsense` | librealsense and `realsense-ros` | colour, depth, infrared, accelerometer and gyroscope, aligned depth and a textured `PointCloud2`, under `/uav0/d435i/…` |
-| `ghcr.io/skymule-ai/mullet-drivers-livox` | Livox SDK2, `livox_ros_driver2` and `ptp4l` | `CustomMsg` and IMU on `/livox/lidar` and `/livox/imu`; the `livox-ptp` service syncs the LiDAR's clock |
+| `ghcr.io/skymule-ai/mullet-drivers-livox` | Livox SDK2, `livox_ros_driver2` and `ptp4l` | `CustomMsg` and IMU on `/livox/lidar` and `/livox/imu`; the `livox-ptp` service syncs the LiDAR's clock over gPTP |
 | `ghcr.io/skymule-ai/mullet-drivers-viz` | RViz and `foxglove_bridge` | a Foxglove WebSocket on port 8765 |
 
 Neither vendor driver computes its point cloud on the GPU, but CUDA is available to the nodes that consume them. The RealSense namespace and TF prefix are set by `REALSENSE_CAMERA_NAMESPACE`, `REALSENSE_CAMERA_NAME` and `REALSENSE_TF_PREFIX`, so several drones do not collide.
