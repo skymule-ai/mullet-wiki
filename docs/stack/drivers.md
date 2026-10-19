@@ -32,7 +32,7 @@ To look at the data from the ground station, run the `foxglove` profile and conn
 
 ## Versions
 
-Every image builds on `mullet-base:v0.5.1` and pins its upstream source revision. Update a pin only after testing it on the Orin. Branch pushes publish `sha-<commit>` images, and release tags publish matching image tags. Tags up to `v0.3.0` are the ROS 2 Humble images, published as `mullet-ros-livox` and `mullet-ros-realsense`.
+Every image builds on `mullet-base:v0.5.1` and pins its upstream source revision. Update a pin only after testing it on the Orin. Branch pushes publish `sha-<commit>` images, and release tags publish matching image tags. Tags up to `v0.3.0` were the ROS 2 Humble images, published as `mullet-ros-livox` and `mullet-ros-realsense`; those packages were deleted on 2026-10-19.
 
 ## Source of truth
 
