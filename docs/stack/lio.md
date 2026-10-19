@@ -1,28 +1,35 @@
 # mullet-lio
 
-mullet-lio will build LiDAR-inertial odometry images, which estimate the drone's pose from the MID-360's point cloud and IMU. Today it is a scaffold: a development image based on mullet-base, a Compose file that runs it next to the LiDAR driver, and an empty workspace. No LIO implementation has been chosen or installed yet. FAST-LIO2 is the first candidate.
+mullet-lio builds LiDAR-inertial odometry images, which estimate the drone's pose from the MID-360's point cloud and IMU. The first one is FAST-LIO2, `ghcr.io/skymule-ai/mullet-lio-fast-lio`. [mullet-localization](localization.md) runs it as the `fast-lio` profile, alone or next to OpenVINS.
 
 Repository: [skymule-ai/mullet-lio](https://github.com/skymule-ai/mullet-lio)
 
 ## Interfaces
 
-| Direction | Name | Type |
-| --- | --- | --- |
-| subscribes | `/livox/lidar` | `sensor_msgs/PointCloud2` |
-| subscribes | `/livox/imu` | `sensor_msgs/Imu` |
-| publishes | odometry, to be decided | `nav_msgs/Odometry`, so mullet-localization's bridge can forward it |
+| Direction | Name | Type | Rate |
+| --- | --- | --- | --- |
+| subscribes | `/livox/lidar` | `livox_ros_driver2/msg/CustomMsg` | 10 Hz |
+| subscribes | `/livox/imu` | `sensor_msgs/Imu` (acceleration in g) | 200 Hz |
+| publishes | `/uav0/fast_lio/odometry` | `nav_msgs/Odometry`: MID-360 IMU pose, body-frame twist, covariance | 10 Hz |
+| publishes | `/uav0/fast_lio/cloud_registered_body` | `sensor_msgs/PointCloud2`, deskewed scan in the IMU frame | 10 Hz |
 
-The image builds on mullet-base, not on the LiDAR image. That works as long as the chosen package reads standard ROS messages. If it needs `livox_ros_driver2/msg/CustomMsg`, its build also needs that message package.
+FAST-LIO2 needs `CustomMsg` because only it carries each point's time, which is what lets FAST-LIO2 undo the motion during a scan. The message package is copied from the [mullet-drivers](drivers.md) Livox image, so its type matches the driver's exactly.
 
-## Developing an implementation
+## Configuration
 
-1. Clone the candidate package into `ws/src/` on the host. The workspace is mounted into the container.
-2. Start the LiDAR driver and the development container: `cp .env.example .env`, then `docker compose build lio` and `docker compose up -d`.
-3. Inside the container (`docker compose exec lio bash -l`), check the input with `ros2 topic hz /livox/lidar`, then build with `rosdep install` and `colcon build`.
-4. Once it produces odometry, move the dependencies, the pinned source revision, the build and the launch command into `images/lio/Dockerfile`.
+`config/fast-lio/mid360.yaml` is upstream's MID-360 file with three changes: the factory LiDAR-IMU extrinsic is held fixed, and map publishing and PCD saving are off (both grow without bound in flight). A patch makes the odometry standard (covariance in ROS order, twist in the body frame), which the bridge needs. The drone's own copy lives in mullet-localization. The repository's `docs/fast-lio.md` explains the estimator and its failure modes.
 
-Building a LIO package and comparing it against OpenVINS on recorded flights is a good student project.
+## Build and run
+
+```bash
+cp .env.example .env
+docker compose --profile fast-lio build fast-lio
+./scripts/smoke-fast-lio.sh      # includes a synthetic MID-360 run that checks the odometry
+docker compose --profile fast-lio up
+```
+
+Keep the drone still while FAST-LIO2 starts: it initialises gravity and the IMU biases from the first samples.
 
 ## Source of truth
 
-The repository's `README.md`.
+The repository's `README.md` and `docs/fast-lio.md`.

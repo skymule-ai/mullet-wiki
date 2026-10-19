@@ -7,21 +7,22 @@ Repository: [skymule-ai/mullet-localization](https://github.com/skymule-ai/mulle
 ```mermaid
 flowchart LR
     d435i["D435i driver"] -- "images, IMU" --> ov["OpenVINS"]
-    livox["MID-360 driver"] -- "point cloud, IMU" --> lio["LIO (planned)"]
+    livox["MID-360 driver"] -- "point cloud, IMU" --> lio["FAST-LIO2"]
     ov -- "nav_msgs/Odometry" --> bridge["px4_ev_bridge"]
-    lio -.-> bridge
+    lio --> bridge
     bridge -- "shadow mode" --> shadow["/localization/vehicle_odometry"]
     bridge -- "fused mode" --> px4["/fmu/in/vehicle_visual_odometry"]
 ```
 
-One estimator runs at a time. Switching estimator means another Compose profile and another `ODOMETRY_TOPIC`; the bridge, the recorder and PX4 stay as they are.
+Both estimators can run at once (`COMPOSE_PROFILES=openvins,fast-lio`) so they can be compared on the same flight, but the bridge forwards only one: the one named by `ODOMETRY_TOPIC`, with its extrinsic in `EV_BRIDGE_CONFIG`. The recorder and PX4 stay as they are.
 
 ## Interfaces
 
 | Direction | Name | Type | Notes |
 | --- | --- | --- | --- |
 | publishes | `/uav0/d435i/…` | camera and IMU topics | from the D435i driver |
-| publishes | `/livox/lidar`, `/livox/imu` | `PointCloud2`, `Imu` | from the MID-360 driver |
+| publishes | `/livox/lidar`, `/livox/imu` | `livox_ros_driver2/CustomMsg`, `Imu` | from the MID-360 driver |
+| publishes | `/uav0/fast_lio/odometry` | `nav_msgs/Odometry` | FAST-LIO2's estimate |
 | publishes | `/uav0/openvins/odomimu` | `nav_msgs/Odometry` | OpenVINS's estimate |
 | subscribes | `ODOMETRY_TOPIC` | `nav_msgs/Odometry` | the bridge's input |
 | publishes | `/localization/vehicle_odometry` | `px4_msgs/VehicleOdometry` | shadow mode: recorded, not fused |
@@ -37,9 +38,10 @@ The bridge is the only node besides the supervisor that writes to PX4, and it wr
 | Variable | Meaning |
 | --- | --- |
 | `ROS_DOMAIN_ID` | the drone's domain, 99 |
-| `COMPOSE_PROFILES` | `openvins` (D435i, OpenVINS and the bridge); add `livox` and `foxglove` as needed |
-| `DRIVERS_TAG`, `VIO_TAG`, `LOCALIZATION_TAG` | immutable image tags |
-| `ODOMETRY_TOPIC` | the running estimator's output |
+| `COMPOSE_PROFILES` | `openvins` (D435i, OpenVINS and the bridge), `fast-lio` (MID-360, PTP master, FAST-LIO2 and the bridge), or both; add `foxglove` as needed |
+| `DRIVERS_TAG`, `VIO_TAG`, `LIO_TAG`, `LOCALIZATION_TAG` | immutable image tags |
+| `ODOMETRY_TOPIC`, `EV_BRIDGE_CONFIG` | the estimator the bridge forwards, and its extrinsic file (`ev_bridge.yaml` OpenVINS, `ev_bridge_fast_lio.yaml` FAST-LIO2) |
+| `LIVOX_IFACE` | the Orin interface wired to the MID-360, where the PTP master runs |
 | `PUBLISH_TO_PX4` | `false` for shadow mode, `true` to send PX4 the estimate. Set it through a [mullet-px4](px4.md) profile, not by hand. |
 
 `config/` holds what this drone flies with. It is mounted, so a change needs only `docker compose restart <service>`, and never during a flight. The defaults in mullet-drivers and mullet-vio are examples only.

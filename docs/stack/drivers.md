@@ -9,7 +9,7 @@ Repository: [skymule-ai/mullet-drivers](https://github.com/skymule-ai/mullet-dri
 | Image | Contents | Publishes |
 | --- | --- | --- |
 | `ghcr.io/skymule-ai/mullet-drivers-realsense` | librealsense and `realsense-ros` | colour, depth, infrared, accelerometer and gyroscope, aligned depth and a textured `PointCloud2`, under `/uav0/d435i/…` |
-| `ghcr.io/skymule-ai/mullet-drivers-livox` | Livox SDK2 and `livox_ros_driver2` | `PointCloud2` and IMU on `/livox/lidar` and `/livox/imu` |
+| `ghcr.io/skymule-ai/mullet-drivers-livox` | Livox SDK2, `livox_ros_driver2` and `ptp4l` | `CustomMsg` and IMU on `/livox/lidar` and `/livox/imu`; the `livox-ptp` service syncs the LiDAR's clock |
 | `ghcr.io/skymule-ai/mullet-drivers-viz` | RViz and `foxglove_bridge` | a Foxglove WebSocket on port 8765 |
 
 Neither vendor driver computes its point cloud on the GPU, but CUDA is available to the nodes that consume them. The RealSense namespace and TF prefix are set by `REALSENSE_CAMERA_NAMESPACE`, `REALSENSE_CAMERA_NAME` and `REALSENSE_TF_PREFIX`, so several drones do not collide.
@@ -28,7 +28,7 @@ docker compose --profile realsense build
 
 Connect each sensor before its smoke test. `docker compose exec <service> bash -l` opens a shell with ROS 2 and the driver already sourced.
 
-To look at the data from the ground station, run the `foxglove` profile and connect Lichtblick or Foxglove to `ws://<drone-ip>:8765`. The bridge streams only the topics a panel subscribes to; a raw MID-360 cloud alone is about 5 MB/s over Wi-Fi. The `viz` profile runs RViz on a display attached to the Orin; leave it off in flight.
+To look at the data from the ground station, run the `foxglove` profile and connect Lichtblick or Foxglove to `ws://<drone-ip>:8765`. The bridge streams only the topics a panel subscribes to; a raw MID-360 cloud alone is about 5 MB/s over Wi-Fi. `/livox/lidar` is a Livox `CustomMsg`, which Foxglove cannot draw: view FAST-LIO's `/uav0/fast_lio/cloud_registered_body`. The `viz` profile runs RViz on a display attached to the Orin; leave it off in flight.
 
 ## Versions
 
