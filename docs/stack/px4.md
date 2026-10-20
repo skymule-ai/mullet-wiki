@@ -32,6 +32,8 @@ A profile sets EKF2's sources and, with them, the mode of mullet-localization's 
 
 The supervisor publishes which sources EKF2 actually uses on `/mullet/localization_status`, and Paddock shows it.
 
+"Vision" is whichever estimator mullet-localization's bridge forwards: OpenVINS or FAST-LIO2, chosen there (`ODOMETRY_TOPIC`, `EV_BRIDGE_CONFIG`), not here. The profiles are the same for both. How much PX4 trusts vision comes from the `EKF2_EVP_NOISE`, `EKF2_EVV_NOISE` and `EKF2_EVA_NOISE` floors (0.1 m, m/s and rad in mullet1's baseline). Both estimators report a smaller covariance than that (FAST-LIO2 about 3 mm), so the floors decide the weight. `EKF2_EV_DELAY` stays 0: the bridge sends the measurement time.
+
 ## On the drone
 
 The repository is cloned once to `~/mullet-px4` on the Orin. The script talks to PX4 through mavlink-router (`tcp:127.0.0.1:5760`) and finds the drone's baseline from the hostname.

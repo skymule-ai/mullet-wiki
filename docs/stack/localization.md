@@ -51,7 +51,12 @@ The bridge is the only node besides the supervisor that writes to PX4, and it wr
 | `config/realsense/d435i.yaml` | infrared stereo at 848 × 480 and 30 Hz, projector off, IMU at 200 Hz |
 | `config/livox/MID360s_config.json` | MID-360 at 192.168.1.104, host at 192.168.1.50 on a USB Ethernet adapter |
 | `config/openvins/` | OpenVINS settings and the Kalibr camera–IMU calibration |
-| `config/ev_bridge.yaml` | the pose of `base_link` in the estimator's body frame; identity until measured |
+| `config/fast-lio/mid360.yaml` | FAST-LIO2: factory LiDAR–IMU extrinsic held fixed, no map publishing or PCD saving |
+| `config/ev_bridge.yaml` | the pose of `base_link` in OpenVINS's body frame (the D435i IMU), measured |
+| `config/ev_bridge_fast_lio.yaml` | the pose of `base_link` in FAST-LIO2's body frame (the MID-360 IMU); identity until measured, so no fused LIO flight before then |
+
+!!! warning "FAST-LIO2: start still, never restart in flight"
+    FAST-LIO2 takes gravity and the gyro bias from its first IMU samples, so start the stack with the drone standing still. A restart starts a new world at the current pose, and the bridge does not signal resets yet, so PX4 would see a jump. The repository README has the full runbook (setup, checks, recording a comparison flight, the three steps to fusion).
 
 !!! warning "Keep the D435i projector off for VIO"
     The infrared projector casts a fixed dot pattern that moves with the camera. OpenVINS tracks the dots as if they were part of the scene, which causes drift indoors (4.5 % with it on against 1.4 % off on the 2026-10-16 office walk). The setting is `depth_module.emitter_enabled: 0`, and it must be the integer 0: `false` is rejected with only a warning, and the projector stays on. Check it with `ros2 param get /uav0/d435i depth_module.emitter_enabled`.
