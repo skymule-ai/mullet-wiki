@@ -53,7 +53,7 @@ The bridge is the only node besides the supervisor that writes to PX4, and it wr
 | `config/openvins/` | OpenVINS settings and the Kalibr camera–IMU calibration |
 | `config/fast-lio/mid360.yaml` | FAST-LIO2: factory LiDAR–IMU extrinsic held fixed, no map publishing or PCD saving |
 | `config/ev_bridge.yaml` | the pose of `base_link` in OpenVINS's body frame (the D435i IMU), measured |
-| `config/ev_bridge_fast_lio.yaml` | the pose of `base_link` in FAST-LIO2's body frame (the MID-360 IMU); identity until measured, so no fused LIO flight before then |
+| `config/ev_bridge_fast_lio.yaml` | the pose of `base_link` in FAST-LIO2's body frame (the MID-360 IMU). On mullet1 the MID-360 faces backward (its +X points away from the cable, and the cable faces forward), measured with a tape |
 
 !!! warning "FAST-LIO2: start still, never restart in flight"
     FAST-LIO2 takes gravity and the gyro bias from its first IMU samples, so start the stack with the drone standing still. A restart starts a new world at the current pose, and the bridge does not signal resets yet, so PX4 would see a jump. The repository README has the full runbook (setup, checks, recording a comparison flight, the three steps to fusion).
