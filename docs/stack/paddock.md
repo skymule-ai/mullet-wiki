@@ -25,8 +25,6 @@ A command returns as soon as the supervisor accepts or refuses it. A refusal is 
 GET  /api/health
 GET  /api/drones
 GET  /api/drones/{drone_id}
-POST /api/drones/{drone_id}/connect
-POST /api/drones/{drone_id}/disconnect
 POST /api/drones/{drone_id}/takeoff                       body: {"altitude_m": 2.0}
 POST /api/drones/{drone_id}/land
 POST /api/drones/{drone_id}/return-home
