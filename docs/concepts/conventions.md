@@ -86,7 +86,7 @@ All containers use Fast DDS (`RMW_IMPLEMENTATION=rmw_fastrtps_cpp`) with `FASTDD
 | PX4 firmware | v1.17.0, Pixhawk 6C | mullet-px4 |
 | ROS 2 | Jazzy | mullet-base |
 | `px4_msgs` | branch `release/1.17` | mullet-base, mullet-sim |
-| Base image | `ghcr.io/skymule-ai/mullet-base:v0.5.1` | each image's `BASE_IMAGE` |
+| Base image | `ghcr.io/skymule-ai/mullet-base:v0.6.0` | each image's `BASE_IMAGE` |
 | SITL image | `ghcr.io/skymule-ai/px4-sitl:v1.17.0` | mullet-sim |
 
-The aircraft run only immutable tags: a release (`v0.5.1`) or a commit (`sha-<commit>`). The `:main` tag moves with every merge and is only for integration testing.
+The aircraft run only immutable tags: a release (`v0.6.0`) or a commit (`sha-<commit>`). The `:main` tag moves with every merge and is only for integration testing.

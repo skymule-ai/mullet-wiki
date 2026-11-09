@@ -32,7 +32,7 @@ docker compose --profile openvins build openvins
 
 The smoke test checks that the package, launch file and configuration are in place, and that OpenVINS stays up while it waits for sensor data. It does not check calibration or accuracy. Do not tag a release until a test on the Orin shows it consuming the images and IMU and publishing odometry.
 
-Images are published as `ghcr.io/skymule-ai/mullet-vio-openvins`, built for ARM64 on `mullet-base:v0.5.1`. A different OpenVINS revision can be built from GitHub Actions without changing the repository: *Build and Push VIO Images*, *Run workflow*.
+Images are published as `ghcr.io/skymule-ai/mullet-vio-openvins`, built for ARM64 on `mullet-base:v0.6.0`. A different OpenVINS revision can be built from GitHub Actions without changing the repository: *Build and Push VIO Images*, *Run workflow*.
 
 ## Source of truth
 

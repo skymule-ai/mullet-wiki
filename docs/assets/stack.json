@@ -180,7 +180,7 @@
       "accent": "amber",
       "col": "2",
       "blurb": "ROS 2 Jazzy for the Orin, with CUDA 13.2, px4_msgs 1.17 and the Micro XRCE-DDS Agent.",
-      "wires": "Every drone image starts FROM ghcr.io/skymule-ai/mullet-base:v0.5.1.",
+      "wires": "Every drone image starts FROM ghcr.io/skymule-ai/mullet-base:v0.6.0.",
       "page": "stack/ros-base/"
     },
     "sim": {
