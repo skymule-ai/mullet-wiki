@@ -13,14 +13,14 @@ Repository: [skymule-ai/mullet-base](https://github.com/skymule-ai/mullet-base)
 | ROS 2 | Jazzy |
 | CUDA | 13.2, with `cuda-compat-orin-13-2` |
 | PX4 messages | `px4_msgs` branch `release/1.17` |
-| Micro XRCE-DDS Agent | v2.4.2 |
+| Micro XRCE-DDS Agent | v2.4.3 |
 
 Ubuntu 24.04 has no CUDA 12.6 build for this board. The image therefore ships CUDA 13.2 with NVIDIA's `cuda-compat-orin` user-space driver, which runs CUDA 13 on the JetPack 6 kernel driver without reflashing. The host needs the NVIDIA Container Toolkit.
 
-The image is published as `ghcr.io/skymule-ai/mullet-base`. Tags from `v0.5.0` are Jazzy. Older tags were published as `mullet-ros2-base`, and those up to `v0.4.0` are ROS 2 Humble. Drone images pin an immutable tag:
+The image is published as `ghcr.io/skymule-ai/mullet-base`. Its tags start at `v0.5.1`, all ROS 2 Jazzy. Earlier tags (`v0.1.0`–`v0.5.0`, Humble up to `v0.4.0`) were in the `mullet-ros2-base` package, which is deleted. Drone images pin an immutable tag:
 
 ```dockerfile
-FROM ghcr.io/skymule-ai/mullet-base:v0.5.1
+FROM ghcr.io/skymule-ai/mullet-base:v0.6.0
 ```
 
 mullet-core, the framework images, and the mullet-localization, mullet-drivers, mullet-vio and mullet-lio images all build on it.
@@ -47,7 +47,7 @@ docker compose run --rm ros2-base
 On the Orin, pick a published tag instead of building. The compose file passes the host UART through as `/dev/ttyTHS1`; set `MULLET_UART_DEVICE` if the host names it differently.
 
 ```bash
-MULLET_ROS_IMAGE_TAG=v0.5.1 docker compose run --rm ros2-base
+MULLET_ROS_IMAGE_TAG=v0.6.0 docker compose run --rm ros2-base
 ```
 
 Every push publishes an image tagged `sha-<short commit>`. To smoke-test one on the Orin before tagging a release:
